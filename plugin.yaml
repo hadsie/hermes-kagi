@@ -1,6 +1,6 @@
 name: web-kagi
 version: 1.0.0
-description: "Kagi web search and content extraction. Supports filtered search with the kagi_search tool."
+description: "Kagi web search and content extraction backend. Routes the built-in web_search and web_extract tools through Kagi."
 author: Scott Hadfield
 kind: backend
 requires_env:
@@ -15,5 +15,3 @@ optional_env:
     description: "Set to off to disable safe search (default on)."
 provides_web_providers:
   - kagi
-provides_tools:
-  - kagi_search
