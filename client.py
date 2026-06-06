@@ -32,6 +32,23 @@ def kagi_headers() -> Dict[str, str]:
     return {"Authorization": f"Bearer {api_key}"}
 
 
+def build_search_body(query: str, **fields: Any) -> Dict[str, Any]:
+    """Assemble a Kagi ``/search`` request body.
+
+    Starts from ``query``, adds any truthy ``fields`` (``limit``, ``filters``,
+    ``lens_id``, ...), and applies the ``KAGI_SAFE_SEARCH=off`` opt-out. Kagi
+    defaults safe search on, so the param is only sent to disable it. Callers
+    decide their own limit semantics and pass the resolved value (or omit it).
+    """
+    body: Dict[str, Any] = {"query": query}
+    for key, value in fields.items():
+        if value:
+            body[key] = value
+    if os.getenv("KAGI_SAFE_SEARCH", "").strip().lower() == "off":
+        body["safe_search"] = False
+    return body
+
+
 def kagi_post(endpoint: str, body: Dict[str, Any], timeout: float = 60) -> Dict[str, Any]:
     """POST a JSON body to the endpoint and return the parsed response.
 

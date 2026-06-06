@@ -9,7 +9,7 @@ import logging
 import os
 from typing import Any, Dict
 
-from .client import kagi_post, normalize_kagi_search_results
+from .client import build_search_body, kagi_post, normalize_kagi_search_results
 
 logger = logging.getLogger(__name__)
 
@@ -37,10 +37,11 @@ def kagi_search(args: Dict[str, Any], **_kw: Any) -> str:
         return tool_error("query is required")
 
     try:
-        limit = int(args.get("limit") or 10)
+        limit = int(args.get("limit"))
     except (TypeError, ValueError):
-        limit = 10
-    body: Dict[str, Any] = {"query": query, "limit": max(1, min(limit, 50))}
+        limit = None
+    # Only send limit when explicitly positive; otherwise let Kagi default.
+    limit = min(limit, 1024) if limit and limit > 0 else None
 
     filters: Dict[str, Any] = {}
     after = str(args.get("after") or "").strip()
@@ -49,15 +50,9 @@ def kagi_search(args: Dict[str, Any], **_kw: Any) -> str:
         filters["after"] = after
     if before:
         filters["before"] = before
-    if filters:
-        body["filters"] = filters
 
     lens_id = str(args.get("lens_id") or "").strip()
-    if lens_id:
-        body["lens_id"] = lens_id
-
-    if os.getenv("KAGI_SAFE_SEARCH", "").strip().lower() == "off":
-        body["safe_search"] = False
+    body = build_search_body(query, limit=limit, filters=filters, lens_id=lens_id)
 
     try:
         web = normalize_kagi_search_results(kagi_post("search", body)).get("data", {}).get("web", [])

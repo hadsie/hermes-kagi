@@ -44,8 +44,7 @@ KAGI_SEARCH_SCHEMA: Dict[str, Any] = {
             },
             "limit": {
                 "type": "integer",
-                "description": "Maximum number of results to return (1-50).",
-                "default": 10,
+                "description": "Maximum number of results to return (1-1024). Omit to use the Kagi default.",
             },
         },
         "required": ["query"],

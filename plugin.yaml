@@ -1,7 +1,7 @@
 name: web-kagi
 version: 1.0.0
 description: "Kagi web search and content extraction. Supports filtered search with the kagi_search tool."
-author: hadsie
+author: Scott Hadfield
 kind: backend
 requires_env:
   - name: KAGI_API_KEY

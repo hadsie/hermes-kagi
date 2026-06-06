@@ -14,7 +14,7 @@ from typing import Any, Dict, List
 
 from agent.web_search_provider import WebSearchProvider
 
-from .client import kagi_post, normalize_kagi_search_results
+from .client import build_search_body, kagi_post, normalize_kagi_search_results
 
 logger = logging.getLogger(__name__)
 
@@ -55,10 +55,7 @@ class KagiWebSearchProvider(WebSearchProvider):
                 return {"success": False, "error": "Interrupted"}
 
             # v1 search is POST with a JSON body; "limit" caps results (1-1024).
-            body: Dict[str, Any] = {"query": query, "limit": max(1, min(limit, 1024))}
-            # Kagi defaults safe search ON; only send the param to turn it OFF.
-            if os.getenv("KAGI_SAFE_SEARCH", "").strip().lower() == "off":
-                body["safe_search"] = False
+            body = build_search_body(query, limit=max(1, min(limit, 1024)))
             logger.info("Kagi search: '%s' (limit=%d)", query, limit)
 
             return normalize_kagi_search_results(kagi_post("search", body))
